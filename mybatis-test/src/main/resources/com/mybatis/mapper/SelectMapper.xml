@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mybatis.mapper.SelectMapper">
+    <!--
+        resultMap：设置自定义映射关系
+        id：唯一标识，不能重复
+        type：设置映射关系中的实体类类型
+        子标签：
+        id：设置主键的映射关系
+        result：设置普通字段的映射关系
+        属性：
+        property：设置映射关系中的属性名，必须是type属性所设置的实体类类型中的属性名
+        column：设置映射关系中的字段名，必须是sql语句查询出的字段名
+    -->
+    <resultMap id="userResultMap" type="User">
+        <id property="id" column="id"></id>
+        <result property="username" column="username"></result>
+        <result property="password" column="password"></result>
+        <result property="mobile" column="mobile"></result>
+        <result property="gender" column="gender"></result>
+        <result property="lastLoginIp" column="last_login_ip"></result>
+    </resultMap>
+
+    <!--User getUserById(@Param("id") Integer id);-->
+    <select id="getUserById" resultType="User">
+        select * from litemall_user where id = #{id}
+    </select>
+
+    <resultMap id="userResultMapLazy" type="User">
+        <id property="id" column="id"></id>
+        <result property="username" column="username"></result>
+        <result property="password" column="password"></result>
+        <result property="mobile" column="mobile"></result>
+        <result property="gender" column="gender"></result>
+        <result property="lastLoginIp" column="last_login_ip"></result>
+        <collection property="address" column="id" select="com.mybatis.mapper.AddressMapper.getAddressByUserId" fetchType="eager"></collection>
+    </resultMap>
+    <!--List<User> getAllUser();-->
+    <select id="getAllUser" resultType="User" resultMap="userResultMapLazy">
+        select * from litemall_user
+    </select>
+
+    <!--Integer getCount();-->
+    <select id="getCount" resultType="_int">
+        select count(*) from litemall_user
+    </select>
+
+    <!--Map<String, Object> getUserByIdToMap(@Param("id") Integer id);-->
+    <select id="getUserByIdToMap" resultType="map">
+        select * from litemall_user where id = #{id}
+    </select>
+
+    <!--Map<String, Object> getAllUserToMap();-->
+    <select id="getAllUserToMap" resultType="map">
+        select * from litemall_user
+    </select>
+
+    <select id="getListByIdArr" resultType="User">
+        SELECT * FROM ${schema}.litemall_user
+        WHERE id in
+        <foreach item="item" collection="arr" separator="," open="(" close=")" index="">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="getListByIdList" resultType="User">
+        SELECT * FROM litemall_user
+        WHERE id in
+        <foreach item="item" collection="list" separator="," open="(" close=")" index="">
+            #{item}
+        </foreach>
+    </select>
+
+    <!--
+        第1种方式:insert into litemall.litemall_user(username, password, mobile) values(#{user.username}, #{user.password}, #{user.mobile})
+    -->
+    <insert id="insertUser" parameterType="User" useGeneratedKeys="true" keyProperty="id">
+
+        /*第2种方式*/
+        insert into litemall_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="user.gender != null  and user.gender != 0">gender,</if>
+            <if test="user.username != null  and user.username != ''">username,</if>
+            <if test="user.password != null  and user.password != ''">password,</if>
+            <if test="user.mobile != null  and user.mobile != ''">mobile,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="user.gender != null  and user.gender != 0">#{user.gender},</if>
+            <if test="user.username != null  and user.username != ''">#{user.username},</if>
+            <if test="user.password != null  and user.password != ''">#{user.password},</if>
+            <if test="user.mobile != null  and user.mobile != ''">#{user.mobile},</if>
+        </trim>
+    </insert>
+
+    <insert id="batchInsertByMap">
+        insert into litemall_user
+        <foreach collection="map.keys" item="key" index="index" open="(" separator="," close=")">
+            ${key}
+        </foreach>
+        values
+        <foreach collection="map.keys" item="key" index="index" open="(" separator="," close=")">
+            #{map.${key}}
+        </foreach>
+    </insert>
+
+    <insert id="batchInsertByList">
+        insert into litemall_user(username, gender) values
+        <foreach collection='list' item='item' index='index ' separator=', '>
+            (#{item.username}, #{item.gender})
+        </foreach>
+    </insert>
+
+    <update id="updateUser">
+        update litemall_user
+        <set>
+            <if test="user.username !=null and user.username !=''">
+                username = #{user.username},
+            </if>
+            <if test="user.gender != null  and user.gender != 0">
+                gender = #{user.gender},
+            </if>
+        </set>
+        where id = #{user.id}
+    </update>
+
+    <update id="batchUpdateByList">
+        <foreach collection='list' item='item' index='index' separator='; '>
+            update litemall_user
+            <set>
+                <if test="item.username != null and item.username !=''">
+                    username = #{item.username},
+                </if>
+                <if test="item.gender != null  and item.gender != 0">
+                    gender = #{item.gender},
+                </if>
+            </set>
+            where id = #{item.id}
+        </foreach>
+    </update>
+
+    <!--
+        方式1：<foreach collection='paramMap' item='item' index='index' separator='; '>
+                update litemall_user set
+                    username = #{item.username},
+                    gender = #{item.gender}
+                where id = #{item.id}
+            </foreach>
+    -->
+    <update id="batchUpdateByMap">
+        <foreach collection='paramMap' item='item' index='index' separator='; '>
+            update litemall_user
+            <set>
+                <if test="item.username != null and item.username !=''">
+                    username = #{item.username},
+                </if>
+                <if test="item.gender != null  and item.gender != 0">
+                    gender = #{item.gender}
+                </if>
+            </set>
+            where id = #{item.id}
+        </foreach>
+    </update>
+
+    <delete id="deleteById">
+        delete from litemall_user where id=#{user.id}
+    </delete>
+
+    <delete id="batchDeleteByList">
+        DELETE FROM litemall_user
+        WHERE id IN
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <!--
+        方式1：select * from litemall_user where username like '%${username}%'
+        (推荐)方式2：select * from litemall_user where username like concat('%',#{username},'%')
+    -->
+    <select id="getListByParam" resultType="User">
+        select * from litemall_user where username like concat('%',#{username},'%')
+    </select>
+
+    <select id="getListByTableName" resultType="User">
+        select * from ${tableName}
+    </select>
+
+    <select id="checkNameVerify" resultType="integer">
+        SELECT count(1) FROM litemall_user where username=#{username}
+        <if test="id != null and id != 0">
+            and id != #{id}
+        </if>
+    </select>
+
+
+    <!--方式1：只设置resultType="User"，通过as设置别名-->
+   <!-- <select id="getUserById2" resultType="User">
+        select id,username,password,gender,mobile,last_login_ip as lastLoginIp from litemall.litemall_user where id = #{id}
+    </select>-->
+    <!--方式2：设置全局配置，将_自动映射为驼峰<setting name="mapUnderscoreToCamelCase" value="true"/>-->
+    <!--<select id="getUserById2" resultType="User">
+        select id,username,password,gender,mobile,last_login_ip from litemall.litemall_user where id = #{id}
+    </select>-->
+    <!--方式3：只设置resultMap="userResultMap"-->
+    <select id="getUserById2" resultMap="userResultMap">
+        select * from litemall.litemall_user where id = #{id}
+    </select>
+
+    <resultMap id="userAndAddressResultMap" type="User">
+        <id property="id" column="id"></id>
+        <result property="username" column="username"></result>
+        <result property="password" column="password"></result>
+        <result property="mobile" column="mobile"></result>
+        <result property="gender" column="gender"></result>
+        <result property="lastLoginIp" column="last_login_ip"></result>
+        <result column="id" property="address.id"></result>
+        <result column="name" property="address.name"></result>
+        <result column="user_id" property="address.userId"></result>
+    </resultMap>
+    <!--方式1：级联方式处理映射关系-->
+<!--    <select id="getUserAndAddressById" resultMap="userAndAddressResultMap">-->
+<!--        select litemall_user.*, litemall_address.* from litemall_user left join litemall_address on litemall_user.id = litemall_address.user_id where litemall_user.id = #{id}-->
+<!--    </select>-->
+
+    <resultMap id="userAndAddressResultMap2" type="User">
+        <id property="id" column="id"></id>
+        <result property="username" column="username"></result>
+        <result property="password" column="password"></result>
+        <result property="mobile" column="mobile"></result>
+        <result property="gender" column="gender"></result>
+        <result property="lastLoginIp" column="last_login_ip"></result>
+        <association property="address" javaType="Address">
+            <id column="id" property="id"></id>
+            <result column="name" property="name"></result>
+            <result column="user_id" property="userId"></result>
+        </association>
+    </resultMap>
+    <!--方式2：使用association处理映射关系-->
+    <select id="getUserAndAddressById" resultMap="userAndAddressResultMap2">
+        select litemall_user.*, litemall_address.* from litemall_user left join litemall_address on litemall_user.id = litemall_address.user_id where litemall_user.id = #{id}
+    </select>
+</mapper>

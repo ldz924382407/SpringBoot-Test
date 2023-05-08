@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vue</title>
+    <!--引入Vue-->
+    <script type="text/javascript" src="../../static/vue/vue.js" ></script>
+    <script type="text/javascript" src="https://unpkg.com/vue-router@3.0.0/dist/vue-router.js" ></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!--练习1：插值表达式 语法：{{ 变量名/对象.属性名 }}-->
+        <h1>欢迎来到-->{{title}}</h1>
+
+        <!--数据双向绑定数据(v-model)
+        注意：
+            双向绑定, 只能绑定**“文本框,单选按钮,复选框,文本域,下拉列表”**等
+            文本框/单选按钮/textarea, 绑定的数据是字符串类型
+            单个复选框, 绑定的是boolean类型
+            多个复选框, 绑定的是数组
+            select单选对应字符串，多选对应也是数组
+        -->
+        <!--练习2：绑定文本框-->
+        用户名: <input type="text" v-model="username"/><br><hr>
+
+        <!--练习4：单选框-->
+        单选框:
+        <input type="radio" value="1" v-model="sex">男
+        <input type="radio" value="0" v-model="sex">女<br><hr>
+
+        <!--练习3：绑定单个复选框-->
+        单个复选框:<input type="checkbox" v-model="agree">同意<br><hr>
+
+        <!--练习5：绑定多个复选框-->
+        多个复选框:
+        <input type="checkbox" value="Java" v-model="language">Java
+        <input type="checkbox" value="Python" v-model="language">Python
+        <input type="checkbox" value="Swift" v-model="language">Swift<hr>
+
+
+
+        <!--练习7：循环遍历(v-for)
+        注意：（）中参数顺序必须一致
+        v-for="(item,index) in items"   ->  items：要迭代的数组 | item：存储数组元素的变量名 | index：迭代到的当前元素索引，从0开始
+        v-for="(value,key,index) in object" -> value，对象的值 | key， 对象的键  | index, 索引，从0开始
+        不推荐同时使用 v-if 和 v-for，因为当 v-if 与 v-for 一起使用时，v-for 具有比 v-if 更高的优先级，这意味着 v-if 将分别重复运行于每个 v-for 循环中。
+        -->
+        v-for="(item,index) in items"
+        <ul>
+            <li v-for="(user, index) in users">
+                {{index}}--{{user.name}}--{{user.age}}--{{user.gender}}
+            </li>
+        </ul>
+        v-for="(value,key,index) in object"
+        <ul>
+            <li v-for="(value,key,index) in users">
+                {{index}}--{{key}}--{{value}}
+            </li>
+        </ul><br><hr>
+
+        <!--练习8：判断语法(v-if和v-show)
+         v-if与v-show可以根据条件的结果,来决定是否显示指定内容.
+         v-if: 条件不满足时, 元素不会存在.，且可用在<template> 元素中，v-if 是“真正”的条件渲染，v-if 也是惰性的：如果在初始渲染时条件为假，则什么也不做——直到条件第一次变为真时，才会开始渲染条件块。
+         v-show: 条件不满足时, 元素不会显示(但仍然存在)。不支持<template> 元素，也不支持 v-else，相比之下，v-show 就简单得多——不管初始条件是什么，元素总是会被渲染，并且只是简单地基于 CSS 进行切换。
+        一般来说，v-if 有更高的切换开销，而 v-show 有更高的初始渲染开销。因此，如果需要非常频繁地切换，则使用 v-show 较好；如果在运行时条件很少改变，则使用 v-if 较好。
+        -->
+        条件渲染:
+        <h1 v-if="agree">Hello v-if.</h1>
+        <h1 v-else>Hello else.</h1>
+        <h1 v-show="agree">Hello v-show.</h1>
+
+        <!--练习9：(v-bind)
+        v-bind的作用和插值表达式差不多, 只不过, v-bind主要用于动态设置标签的属性值
+        -->
+        v-bind: <input type="text" v-bind:value="username"/><br><hr>
+
+        <!--练习10：Vue页面跳转(两种方法)
+        方法一(标签实现)
+        方法二(this.$router.push()实现)
+        -->
+        <!--<router-link :to="{name: 'toHello', params: { id: 1 } }" href="javascript:">-->
+        <!--    <span class="tabNav-txt">页面跳转方式1</span>-->
+        <!--</router-link>-->
+        <a @click="toHello()"  href="javascript:void(0);"><span class="tabNav-txt">页面跳转方式2</span></a><br><hr>
+
+        <!--练习11：计算属性，配置vue对象
+        概述：计算属性就是一个提前定义好的方法, 该方法可以看作是一个特殊的值, 可以在插值表达式中使用。不同的是计算属性是基于它们的响应式依赖进行缓存的，可以当缓存使用
+        语法：computed:{
+                 //定义计算属性
+                 属性名(){
+                     return "返回值";
+                 }
+             }
+        注意：v-bind:value使用方法只写方法名，不要带()
+        -->
+        计算属性：
+        <input type="text" v-bind:value="birth"/><br>
+        set方法
+        <input type="text" v-bind:value="set"/><br>
+        get方法
+        <input type="text" v-bind:value="get"/><br><hr>
+
+        <!--练习12：侦听属性，watch监控，配置vue对象
+        watch可以监听简单属性值及其对象中属性值的变化.
+        watch类似于onchange事件,可以在属性值修改的时候,执行某些操作
+        -->
+
+        <!--练习13：自定义Vue组件-基本使用
+        组件, 类似于模版, 模块. 在项目需要重用某个模块（头部、尾部、新闻。。。）的时候，可以将模块抽取成组件，其它页面中注册组件并引用。
+        使用组件(组件名称),如果组件名称中有大写字母,如"myList",则这里需要书写<my-list>
+        注意：
+            1.组件的模版中, 只能书写一个跟标签
+            2.组件的定义必须放在Vue创建对象之前, 否则报错
+        -->
+        自定义组件：<counter-temp></counter-temp><br><hr>
+
+        <!--练习14：父组件向子组件通信
+        概述：
+            子组件无法直接使用父组件中的数据, 如果需要使用, 则必须由父组件把数据传递给子组件才可以.
+            本质: 让子组件中的属性与父组件中的属性进行关联绑定, 然后子组件使用该属性, 这样才能做到数据传递
+        举例：把父组件中的count传递给子组件的number属性,把父arr传递给子ids,把父p传递给子person
+        问题1：为什么自定义组件中使用data函数而不是使用data对象？
+        答案：由于组件会多次被使用，使用函数data属性会独立，互不影响，而直接使用data对象，所有引入的页面都会修改到data对象的属性值，这样会产生影响
+
+        问题2：自定义组件中data()和props的区别？
+        答案：data  就是返回一个组件自身的数据对象，props 是组件用来接收父组件数据对象的，两者概念不同。
+        -->
+        父组件向子组件通信：
+        <parent-to-child-component :number="count" :ids="arr" :person="p"></parent-to-child-component><br><hr>
+
+        <!--练习15：子组件向父组件通信
+        概述：
+            子组件无法直接给父组件传递数据. 也无法操作父组件中的数据, 更无法调用父组件中的方法.
+            所以, 所谓的子组件向父组件通讯, 其实就是想办法让子组件调用父组件的方法. 进而响应到父组件中的数据
+        大白话讲：子组件向父组件通信=子组件调用父组件中的方法-->
+        子组件向父组件通信（子组件调用父组件方法）：
+        <h1>父组件中:app_num={{app_num}}</h1>
+        <child-invoke-parent-component-method @aaa="add" @bbb="rem" :counter_num="app_num"></child-invoke-parent-component-method><br><hr>
+
+        <!--练习16，钩子函数，其实就是Vue提前定义好的事件, 其作用类似于Servlet的init方法和distory方法，钩子函数分系统自带和自定义的，其中created为系统自带函数，不能随意命名，否则无效-->
+
+        <!--练习17，用 key管理可复用的元素，key标识的标签会被vue重新渲染标签而不会复用
+        Vue 会尽可能高效地渲染元素，通常会复用已有元素而不是从头开始渲染。这么做除了使 Vue 变得非常快。
+         Vue 为你提供了一种方式来表达“这两个元素是完全独立的，不要复用它们”。只需添加一个具有唯一值的 key attribute 即可：<input placeholder="Enter your username" :key="username-input">
+        -->
+
+        <!--练习18：事件处理
+        时间修饰符，尽管我们可以在方法中轻松实现这点，但更好的方式是：方法只有纯粹的数据逻辑，而不是去处理 DOM 事件细节。
+        .stop       阻止单击事件继续传播
+        .prevent    提交事件不再重载页面
+        .capture    添加事件监听器时使用事件捕获模式，即内部元素触发的事件先在此处理，然后才交由内部元素进行处理
+        .self       只当在 event.target 是当前元素自身时触发处理函数，即事件不是从内部元素触发的
+        .once       只执行一次
+        .passive    不阻止默认事件，真正的目的是告诉浏览器，你可以不用去查询程序有没有阻止默认事件，也就是提前告诉浏览器程序不会阻止
+        -->
+    </div><br><hr>
+
+    <div id="app19">
+        <h1>练习19：父组件通过 Prop 向子组件传递数据：</h1>
+        <!--练习19：通过 Prop 向子组件传递数据，Prop 是你可以在组件上注册的一些自定义 attribute，任何值都可以传递给任何 prop。在上述模板中，你会发现我们能够在组件实例中访问这个值，就像访问 data 中的值一样-->
+        字符串形式：<blog-post title="My journey with Vue"></blog-post>
+        数组形式：<blog-post v-for="post in posts" v-bind:key="post.id" v-bind:title="post.title"></blog-post>
+    </div>
+    <div id="app20">
+        <!--
+            注意点1：注册必须放在实例化之前，因为Vue的实例化会把全局注册的组件注册到当前实例中，当实例化完成后，再注册组件是没有用的
+            注意点2：子组件可以使用 $emit,让父组件监听到自定义事件
+        -->
+        <h1>练习20：父组件通过 Prop 监听子组件事情：</h1>
+        <div :style="{ fontSize: postFontSize + 'em' }">
+            <blog-post1
+                    v-for="post in posts"
+                    v-bind:key="post.id"
+                    v-bind:post="post"
+                    v-on:enlarge-text="postFontSize += 0.1"
+            ></blog-post1>
+        </div>
+    </div><br><hr>
+
+    <div id="app21">
+        <!--
+            注意点1：$emit(参数1， 参数2)，其中参数1为自定义事件名，参数2可省略，代表要参数的值
+            注意点2：$emit 的第二个参数抛出的值，可以直接通过 $event 访问到被抛出的这个值，例如下方方式1，或者采用函数形参获取被抛出的值
+        -->
+        <h1>练习21：父组件通过 Prop 监听子组件事情，使用事件抛出一个值： 举例说明：我们可能想让自定义组件自己决定它的文本要放大多少，这时可以使用 $emit 的第二个参数来提供这个值</h1>
+        <div :style="{ fontSize: postFontSize + 'em' }">
+            <!--方式1：在父级组件监听这个事件的时候，我们可以通过 $event 访问到被抛出的这个值，v-on:enlarge-text="postFontSize += $event"-->
+            <!--<blog-post2-->
+            <!--        v-for="post in posts"-->
+            <!--        v-bind:key="post.id"-->
+            <!--        v-bind:post="post"-->
+            <!--        v-on:enlarge-text="postFontSize += $event"-->
+            <!--&gt;</blog-post2>-->
+            <!--方式2：或者，如果这个事件处理函数是一个方法 v-on:enlarge-text="onEnlargeText"-->
+            <blog-post2
+                    v-for="post in posts"
+                    v-bind:key="post.id"
+                    v-bind:post="post"
+                    v-on:enlarge-text="onEnlargeText"
+            ></blog-post2>
+        </div>
+    </div><br><hr>
+
+    <div id="app22">
+        <h1>练习22：在组件上使用 v-model</h1>
+        <custom-input v-model="searchText"></custom-input>
+    </div><br><hr>
+
+    <script type="text/javascript">
+        Vue.component('custom-input', {
+            props: ['value'],
+            template: `
+                <input
+                  v-bind:value="value"
+                  v-on:input="$emit('input', $event.target.value)"
+                >
+            `
+        })
+        let vm22 = new Vue({
+            el: '#app22',
+            data: {
+                searchText: "helllo"
+            }
+        })
+
+        /**
+         * 练习21：父组件通过 Prop 监听子组件事情，使用事件抛出一个值： 举例说明：我们可能想让自定义组件自己决定它的文本要放大多少，这时可以使用 $emit 的第二个参数来提供这个值
+         */
+        Vue.component('blog-post2', {
+            props: ['post'],    //自定义属性post，其值为一个{}对象
+            template: `
+                <div>
+                  <h3>{{ post.title }}</h3>
+                  <button v-on:click="$emit('enlarge-text', 0.1)">
+                    Enlarge text
+                  </button>
+                  <div v-html="post.content"></div>
+                </div>
+              `
+        })
+        new Vue({
+            el: '#app21',
+            data: {
+                posts: [
+                    { id: 1, content: "hello world!", title: 'My journey with Vue' },
+                    { id: 2, content: "hello world 2!",title: 'Blogging with Vue' },
+                ],
+                postFontSize: 1
+            },
+            methods:{
+                //方式2：或者，如果这个事件处理函数是一个方法 v-on:enlarge-text="onEnlargeText
+                onEnlargeText(enlargeAmount){
+                    this.postFontSize += enlargeAmount
+                }
+            }
+        })
+
+        /**
+         * 练习20：父组件通过 Prop 监听子组件事情
+         * 注意点1：注册必须放在实例化之前，因为Vue的实例化会把全局注册的组件注册到当前实例中，当实例化完成后，再注册组件是没有用的
+         * 注意点2：子组件可以使用 $emit,让父组件监听到自定义事件
+         *
+         */
+        Vue.component('blog-post1', {
+            props: ['post'],    //自定义属性post，其值为一个{}对象
+            template: `
+                <div>
+                  <h3>{{ post.title }}</h3>
+                  <button v-on:click="$emit('enlarge-text')">
+                    Enlarge text
+                  </button>
+                  <div v-html="post.content"></div>
+                </div>
+              `
+        })
+        new Vue({
+            el: '#app20',
+            data: {
+                posts: [
+                    { id: 1, content: "hello world!", title: 'My journey with Vue' },
+                    { id: 2, content: "hello world 2!",title: 'Blogging with Vue' },
+                ],
+                postFontSize: 1
+            }
+        })
+
+        //练习19：父组件通过 Prop 向子组件传递数据
+        Vue.component('blog-post', {
+            props: ['title'],   //自定义属性title
+            template: '<h3>{{ title }}</h3>'
+        })
+        new Vue({
+            el: '#app19',
+            data: {
+                posts: [
+                    { id: 1, title: 'My journey with Vue' },
+                    { id: 2, title: 'Blogging with Vue' },
+                    { id: 3, title: 'Why Vue is so fun' }
+                ]
+            }
+        })
+
+        //练习15：子组件向父组件通信
+        let childInvokeParentComponentMethod = {
+            template: `
+             <div>
+                   <h1>子组件中:counter_num={{counter_num}}</h1>
+                   <input type="button" @click="fun1" value="+"/>
+                   <input type="button" @click="fun2" value="-"/>
+            </div>
+                `,
+            props:{
+                //定义属性counter_num,用来接收父组件传递的数据
+                counter_num:null,
+                //定义aaa属性,用来绑定父组件的方法,当然,该定义也可以省略
+                aaa:function(){},
+                //定义bbb属性,用来绑定父组件的方法,当然,该定义也可以省略
+                bbb:function(){},
+            },
+            methods:{
+                fun1(){
+                    //找到aaa属性所绑定的那个方法,执行那个方法
+                    return this.$emit("aaa");
+                },
+                fun2(){
+                    //找到bbb属性所绑定的那个方法,执行那个方法
+                    return this.$emit("bbb");
+                }
+            }
+        }
+
+        //练习14：父组件向子组件通信
+        let parentToChildComponent = {
+            //定义组件的模版
+            template: `<h2>{{num}}---{{number}}--{{ids}}--{{person}}</h2>`,
+            //定义组件中使用到的数据属性 -》就是返回一个组件自身的数据对象
+            data() {
+                return {
+                    num: 0
+                }
+            },
+            //给组件添加属性 -》 是组件用来接收父组件数据对象的
+            props: {
+                //普通属性number
+                number: "",
+                //数组属性ids
+                ids: [],
+                //对象属性person
+                person: {}
+                /*
+                *	//以上属性还可以书写为以下格式
+                *	items:{
+                *        //数据类型，如果是数组则是Array，如果是对象则是Object
+                *       type:Array,
+                *       //默认值
+                *       default:[]
+                *	}
+                */
+            }
+        };
+        //注册:全局注册
+        Vue.component("parentToChildComponent", parentToChildComponent);
+
+
+        //练习13：Vue组件-基本使用
+        //定义组件
+        const counterTemp = {
+            //定义组件的模版
+            template:`<button @click='num++'>你点击了{{num}}次</button>`,
+            //定义组件中使用到的数据属性
+            data(){
+                return {
+                    num:0
+                }
+            }
+        };
+
+        //创建vue对象
+        var app = new Vue({
+            el:"#app",
+            /**
+             * 全局注册组件：在所有的vue实例中都可以使用组件  参数1：组件名称，参数2：具体的组件  Vue.component("counter", counterTemp);
+             * 局部注册组件: 只能在当前Vue实例中使用
+             */
+            components:{
+                //练习13：自定义Vue组件     组件名称:具体组件
+                counterTemp: counterTemp,
+                //练习15：子组件向父组件通信
+                childInvokeParentComponentMethod:childInvokeParentComponentMethod
+            },
+            //练习12：watch监听
+            watch:{
+                //监听username属性值,newValue代表新值,oldValue代表旧值
+                username(newValue, oldValue){
+                    console.log("新值：" + newValue + "；旧值：" + oldValue);
+                },
+                //监控person对象的值,对象的监控只能获取新值
+                users: {
+                    //开启深度监控；监控对象中的属性值变化
+                    deep: true,
+                    //获取到对象的最新属性数据(obj代表新对象)
+                    handler(obj){
+                        console.log("name = " + obj.name + "; age=" + obj.age);
+                    }
+                }
+            },
+            //练习11：计算属性
+            computed:{
+                //定义一个birth方法,该方法就是一个计算属性,可以在插值表达式中使用
+                birth(){
+                    let date = new Date();
+                    let year = date.getFullYear();
+                    let month = date.getMonth()+1;
+                    let day = date.getDay();
+                    return year + "-" + month + "-" + day;
+                },
+                get() {
+                    return this.username
+                },
+                set() {
+                    this.username = "小猫"
+                }
+            },
+            data:{
+                <!--练习1：插值表达式 语法：{{ 变量名/对象.属性名 }}-->
+                title: "Vue！",
+                <!--练习2：绑定文本框--> <!--练习9：(v-bind)-->
+                username: "大猫", //该属性值和文本框的value属性值,保持一致
+                <!--练习4：单选框-->
+                sex: 0,
+                <!--练习3：绑定单个复选框--><!--练习8：判断语法(v-if和v-show)-->
+                agree: true,
+                <!--练习5：绑定多个复选框-->
+                language: ["Java","Python"],  //数组中的值,就是被选中的元素的value属性值
+                <!--练习7：循环遍历(v-for)-->
+                users:[
+                    {"name":"白卓冉","age":8,"gender":"男"},
+                    {"name":"白大锅","age":12,"gender":"女"},
+                    {"name":"白仙女","age":4,"gender":"男"}
+                ],
+                //练习14：父组件向子组件通信
+                count: 5,
+                arr: [1, 2, 3],
+                p: {username: "zhangsan", age: 23},
+                //练习15：子组件向父组件通信
+                app_num: 0
+            },
+            methods:{
+                //练习10：Vue页面跳转(两种方法)
+                toHello() {
+                    // window.open("http://www.baidu.com");
+                    this.$router.push("http://www.baidu.com");
+                },
+                //练习15：子组件向父组件通信
+                add(){
+                    this.app_num++;
+                },
+                rem(){
+                    this.app_num--;
+                }
+            }
+        });
+
+        //练习6：form表单数据提交
+        var myForm=  new Vue({
+            el:"#myForm",
+            // 定义pop组件的数据
+            data: {
+                formMess:{
+                    "name":"",
+                    "password":"",
+                }
+            },
+            //练习16，钩子函数，其实就是Vue提前定义好的事件, 其作用类似于Servlet的init方法和distory方法，钩子函数分系统自带和自定义的，其中created为系统自带函数，不能随意命名，否则无效
+            created() {
+                console.log("--vue--init...");
+            },
+            methods: {
+                <!--练习6：form表单数据提交-->
+                getVue() {
+                    //axios.get使用方式1(推荐)
+                    //注意：headers请求头设置位置不一样，axios.get中headers存在于{}中，而axios({})中headers当成一个key，value进行设置
+                    axios.get("/getVue", {
+                        params: {
+                            name:"zhangsan"
+                        },
+                        headers: {
+                            responseType: 'json'    //响应数据格式为"json"
+                        }
+                    }).then((res)=>{
+                        myForm.formMess.name = res.data.info.name;
+                        myForm.formMess.password = res.data.info.password;
+                        alert("查询数据成功！")
+                    }).catch(err => {
+                        console.log(err);   //打印响应数据(错误信息)
+                    });
+
+                    //axios.get使用方式2
+                    axios({
+                        method:"get",
+                        url:"/getVue",
+                        params:{
+                            name:"zhangsan"
+                        },
+                        headers: {
+                            responseType: 'json'    //响应数据格式为"json"
+                        }
+                    }).then((res)=>{
+                        myForm.formMess.name = res.data.info.name;
+                        myForm.formMess.password = res.data.info.password;
+                        alert("查询数据成功！")
+                    }).catch(err => {
+                        console.log(err);    //打印响应数据(错误信息)
+                    });
+                },
+                addVue() {
+                    //axios.post使用方式1(推荐)
+                    //注意点1：headers请求头设置位置不一样，axios.post中headers存在于第三个{}中，而axios({})中headers当成一个key，value进行设置
+                    //注意点2：axios.post的第二个{}指代请求体中没有作为key的data，而axios({})中使用data作为请求体参数
+                    axios.post("/addVue", {
+                        "name":this.formMess.name,
+                        "password":this.formMess.password
+                    },{
+                        headers: {
+                            responseType: 'json'
+                        }
+                    }).then((res)=>{
+                        console.log(res);
+                        alert("提交数据成功！")
+                    }).catch(err => {
+                        console.log(err);    //打印响应数据(错误信息)
+                    });
+
+                    //axios.post使用方式2
+                    axios({
+                        method:"post",
+                        url:"/addVue",
+                        data:{
+                            "name":this.formMess.name,
+                            "password":this.formMess.password,
+                        },
+                        header:{
+                            responseType: 'json'    //响应数据格式为"json"
+                        }
+                    }).then((res)=>{
+                        console.log(res);
+                        alert("提交数据成功！")
+                    }).catch(err => {
+                        console.log(err);   //打印响应数据(错误信息)
+                    });
+                }
+            }
+        })
+    </script>
+</body>
+</html>

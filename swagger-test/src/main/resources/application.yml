@@ -1,0 +1,9 @@
+# 端口号
+server:
+  port: 8016
+
+# 设置SpringMVC的路径匹配策略
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher

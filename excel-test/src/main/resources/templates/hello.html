@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<p>单文件上传</p>
+<p th:text="${msg}"></p>
+<hr>
+<p>多文件上传</p>
+<ul>
+    <li th:each="msg1:${msgList}" th:text="${msg1}"></li>
+</ul>
+
+<button style="display: none">点我</button>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mybatis.mapper.AddressMapper">
+
+    <select id="getAddressByUserId" resultType="Address">
+        select * from litemall_address where user_id = #{userId}
+    </select>
+
+    <resultMap id="addresAndUsersResultMap" type="address">
+        <id column="id" property="id"></id>
+        <result column="name" property="name"></result>
+        <result column="user_id" property="userId"></result>
+        <!--ofType：设置collection标签所处理的集合属性中存储数据的类型-->
+        <collection property="userList" ofType="User">
+            <id property="id" column="id"></id>
+            <result property="username" column="username"></result>
+            <result property="password" column="password"></result>
+            <result property="mobile" column="mobile"></result>
+            <result property="gender" column="gender"></result>
+            <result property="lastLoginIp" column="last_login_ip"></result>
+        </collection>
+    </resultMap>
+    <select id="getAddressAndUserById" resultMap="addresAndUsersResultMap">
+        select litemall_user.*, litemall_address.* from litemall_address  left JOIN litemall_user on litemall_user.id = litemall_address.user_id where litemall_address.id = #{id}
+    </select>
+
+    <select id="getAddressById" resultType="Address">
+        select * from litemall_address where id = #{id}
+    </select>
+</mapper>

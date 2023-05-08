@@ -1,0 +1,30 @@
+# 端口号
+server:
+  port: 8015
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://10.110.13.86:3306/flyway?characterEncoding=utf8
+    username: root
+    password: 123456
+    hikari:
+      minimum-idle: 5 #最小空闲连接数
+      idle-timeout: 180000 #空闲连接存活最大时间，默认600000
+      maximum-pool-size: 10 #连接池最大连接数
+      auto-commit: true #自动提交 默认true
+      pool-name: HikariCP #连接池名称
+      max-lifetime: 1800000 #连接池最长生命周期，0表示无限生命周期，默认1800000(30分钟)
+      connection-timeout: 30000 #连接超时时间，默认30000
+      connection-test-query: SELECT 1
+
+  # flayway相关配置
+  flyway:
+    locations: classpath:db/migration   #这个路径指的是fly版本控制的sql语句存放的路径,可以多个，可以给每个环境使用不同位置,比如classpath:db/migration,classpath:test/db/migration
+    baseline-on-migrate: true   #开启自动创建flyway元数据表标识 默认: false
+#    url: jdbc:mysql://10.110.13.86:3306/flyway?characterEncoding=utf8
+#    user: root
+#    password: Bingo@1993
+    enabled: true   #是否启用flyway(默认true)
+    clean-disabled: true    #禁止flyway执行清理
+    table: flyway_schema_history  #用于记录所有的版本变化记录

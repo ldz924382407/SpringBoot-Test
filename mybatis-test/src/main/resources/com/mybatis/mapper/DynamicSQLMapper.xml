@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mybatis.mapper.DynamicSQLMapper">
+
+    <select id="getUserByParamsWithIf" resultType="User">
+        select * from litemall_user where 1=1
+        <if test="username != '' and username != null">
+            and username = #{username}
+        </if>
+        <if test="id != 0 and id != null">
+            and id = #{id}
+        </if>
+    </select>
+
+    <select id="getUserByParamsWithWhere" resultType="User">
+        select * from litemall_user
+        <where>
+            <if test="username != '' and username != null">
+                and username = #{username}
+            </if>
+            <if test="id != 0 and id != null">
+                and id = #{id}
+            </if>
+        </where>
+    </select>
+
+    <select id="getUserByParamsWithTrim" resultType="User">
+        select * from litemall_user
+        <trim prefix="where" suffixOverrides="and">
+            <if test="username != '' and username != null">
+                 username = #{username} and
+            </if>
+            <if test="gender != 0 and gender != null">
+                 gender = #{gender} and
+            </if>
+            <if test="id != 0 and id != null">
+                id = #{id} and
+            </if>
+        </trim>
+    </select>
+
+    <select id="getUserByParamsWithChoose" resultType="User">
+        select * from litemall_user
+        <where>
+            <choose>
+                <when test="username != '' and username != null">
+                    username = #{username}
+                </when>
+                <when test="gender != 0 and gender != null">
+                    gender = #{gender}
+                </when>
+                <when test="id != 0 and id != null">
+                    id = #{id}
+                </when>
+            </choose>
+        </where>
+    </select>
+
+    <sql id="userColumns">
+        id, username, password, mobile, gender, last_login_ip
+    </sql>
+    <select id="getUserByParamsWithSQLFragment" resultType="User">
+        select <include refid="userColumns"></include> from litemall_user where id = 4
+    </select>
+</mapper>

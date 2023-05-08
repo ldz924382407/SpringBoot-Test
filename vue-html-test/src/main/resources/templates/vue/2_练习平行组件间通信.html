@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vue练习</title>
+    <!--引入Vue-->
+    <script type="text/javascript" src="../../static/vue/vue.js" ></script>
+</head>
+<body>
+    <!--
+    平行组件间调用属性和方法：
+        问题要求：有<v-a>、<v-b>、<v-c>3个子组件，他们三个处于平行关系，用<v-c>来接收<v-a>或者<v-b>组件发过来的消息
+        子组件中调用Event.$emit('asend', this.ipt)调用
+        子组件中接收Event.$on('bsend', function (msg) {
+                                _this.strb = msg;
+                            })
+    -->
+    <div id="app">
+        <v-a></v-a><hr>
+        <v-b></v-b><hr>
+        <v-c></v-c>
+    </div>
+
+    <template id="a">
+        <div>
+            <p>这是a组件</p>
+            <button @click="a()">发送a组件</button>
+        </div>
+    </template>
+    <template id="b">
+        <div>
+            <p>这是b组件</p>
+            <button @click="b()">发送b组件</button>
+        </div>
+    </template>
+    <template id="c">
+        <div>
+            <p>这是c组件</p>
+            <p>接收的a数据：{{stra}}</p>
+            <p>接收的b数据：{{strb}}</p>
+        </div>
+    </template>
+
+
+    <script type="text/javascript">
+        var Event = new Vue();
+
+        new Vue({
+            el: '#app',
+            data: {},
+            methods: {},
+            components: {
+                "v-a": {
+                    template: "#a",
+                    data() {
+                        return {
+                            ipt:"我是a组件发过来数据"
+                        }
+                    },
+                    methods: {
+                        a() {
+                            Event.$emit('asend', this.ipt)
+                        }
+                    }
+                },
+                "v-b": {
+                    template: '#b',
+                    data() {
+                        return{
+                            ipt:"我是b组件发过来数据"
+                        }
+                    },
+                    methods: {
+                        b() {
+                            Event.$emit('bsend', this.ipt)
+                        }
+                    }
+                },
+                "v-c": {
+                    template: '#c',
+                    data() {
+                        return {
+                            stra:"",
+                            strb:""
+                        }
+                    },
+                    mounted() {
+                        var _this = this;
+                        //接收a数据
+                        Event.$on('asend', function (msg) {
+                            _this.stra = msg;
+                        })
+                        //接收b数据
+                        Event.$on('bsend', function (msg) {
+                            _this.strb = msg;
+                        })
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+</html> 

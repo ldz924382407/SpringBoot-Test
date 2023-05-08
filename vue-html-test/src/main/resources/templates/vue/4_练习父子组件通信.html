@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vue练习</title>
+    <!--引入Vue-->
+    <script type="text/javascript" src="../../static/vue/vue.js"></script>
+</head>
+<body>
+<div id="app">
+    <!--
+    注意：定子组件时使用“首字母大写命名”或者“短横线分隔命名”都可以，但是父组件使用时必须使用“短横线分隔命名”标签，因为DOM渲染模板时会把组件名自动全变成小写字母，如果使用“首字母大写命名”标签会报错，因为vue对大小写不做区分
+    -->
+    父组件向子组件传递属性值（或者叫：子组件使用父组件属性）：
+    <parent-transmit-child-propity :number="count" :ids="arr" :person="p"></parent-transmit-child-propity><br><hr>
+
+    子组件向父组件通信（或者叫：子组件调用父组件方法）：
+    <h1>父组件中属性:count={{count}}</h1>
+    <child-invoke-parent-method @aaa="add" @bbb="rem" :counter_num="count"></child-invoke-parent-method><br><hr>
+</div>
+
+<script type="text/javascript">
+    //练习14：父组件向子组件通信
+    let ParentTransmitChildPropity = {
+        name:"ParentTransmitChildPropity",
+        //定义组件的模版
+        template: `<h2>{{num}}---{{number}}--{{ids}}--{{person}}</h2>`,
+        //定义组件中使用到的数据属性 -》就是返回一个组件自身的数据对象
+        data() {
+            return {
+                num: 0
+            }
+        },
+        //给组件添加属性 -》 是组件用来接收父组件数据对象的
+        props: {
+            //普通属性number
+            number: "",
+            //数组属性ids
+            ids: [],
+            //对象属性person
+            person: {}
+        }
+    };
+    //注册:全局注册
+    // Vue.component("ParentTransmitChildPropity", ParentTransmitChildPropity);
+
+    //练习15：子组件向父组件通信
+    let ChildInvokeParentMethod = {
+        name:"ChildInvokeParentMethod",
+        template: `
+             <div>
+                   <h1>子组件中属性:counter_num={{counter_num}}</h1>
+                   <input type="button" @click="fun1" value="+"/>
+                   <input type="button" @click="fun2" value="-"/>
+            </div>
+                `,
+        props:{
+            //定义属性counter_num,用来接收父组件传递的数据
+            counter_num:null,
+            //定义aaa属性,用来绑定父组件的方法,当然,该定义也可以省略
+            aaa:function(){},
+            //定义bbb属性,用来绑定父组件的方法,当然,该定义也可以省略
+            bbb:function(){},
+        },
+        methods:{
+            fun1(){
+                //找到aaa属性所绑定的那个方法,执行那个方法
+                return this.$emit("aaa");
+            },
+            fun2(){
+                //找到bbb属性所绑定的那个方法,执行那个方法
+                return this.$emit("bbb");
+            }
+        }
+    }
+    // Vue.component("ChildInvokeParentMethod", ChildInvokeParentMethod);
+
+    new Vue({
+        el: '#app',
+        data: {
+            count: 5,
+            arr: [1, 2, 3],
+            p: {username: "zhangsan", age: 23},
+        },
+        methods:{
+            //练习15：子组件向父组件通信
+            add(){
+                this.count++;
+            },
+            rem(){
+                this.count--;
+            }
+        },
+        components: {
+            ParentTransmitChildPropity, ChildInvokeParentMethod
+        }
+    })
+</script>
+</body>
+</html> 

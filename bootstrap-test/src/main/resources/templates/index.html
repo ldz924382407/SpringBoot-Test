@@ -1,0 +1,353 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title></title>
+    <!--先加载css，再加载js，否则可能出错-->
+    <link th:href="@{bootstrap-3.4.1-dist/css/bootstrap.css}" rel="stylesheet" />
+    <link th:href="@{bootstrap-3.4.1-dist/css/bootstrap-theme.css}" rel="stylesheet" />
+    <!--切记：先加载jquery的js，再加载bootstrap.js-->
+    <script th:src="@{jquery/jquery3.6.0.js}"></script>
+    <script th:src="@{bootstrap-3.4.1-dist/js/bootstrap.js}"></script>
+
+</head>
+<body>
+    <div class="col-md-8">
+        <button type="submit" id="getTeacherList" class="btn btn-default">查询最新的数据</button>
+        <button type="button" id="addTeacher" class="btn btn-success">新建</button>
+        <button type="button" id="updateTeacher" class="btn btn-info">修改</button>
+        <button type="button" id="deleteTeacher" class="btn btn-warning">删除</button>
+    </div>
+
+    <!--表格-->
+    <div id="myTable" class="bs-example col-md-8" data-example-id="hoverable-table">
+        <table class="table table-hover" >
+            <thead>
+            <tr>
+                <th><input type="checkbox" value="" id="mycheckbox"></th>
+                <th>#</th>
+                <th>姓名</th>
+                <th>班级</th>
+                <th>所属学院</th>
+                <th>别名</th>
+                <th>性别</th>
+            </tr>
+            </thead>
+            <tbody id="myTbody1">
+            <tr>
+                <th><input type="checkbox" value=""></th>
+                <th scope="row">1</th>
+                <td>Mark</td>
+                <td>Otto</td>
+                <td>@mdo</td>
+                <td>Otto</td>
+                <td>男</td>
+            </tr>
+            <tr>
+                <th><input type="checkbox" value=""></th>
+                <th scope="row">2</th>
+                <td>Jacob</td>
+                <td>Thornton</td>
+                <td>@fat</td>
+                <td>Thornton</td>
+                <td>女</td>
+            </tr>
+            <tr>
+                <th><input type="checkbox" value=""></th>
+                <th scope="row">3</th>
+                <td>Larry</td>
+                <td>the Bird</td>
+                <td>@twitter</td>
+                <td>the Bird</td>
+                <td>女</td>
+            </tr>
+            </tbody>
+        </table>
+        </table>
+    </div>
+
+    <div class="col-md-8">
+        <!--表单-->
+        <form id="myForm" style="display: none">
+            <div class="form-group" style="display: none">
+                <label for="id">id</label>
+                <input type="text" class="form-control" id="id"  value="">
+                <span id="errorId" style="color: orangered"></span>
+            </div>
+            <div class="form-group">
+                <label for="name">姓名</label>
+                <input type="text" class="form-control" id="name" placeholder="please input name" value="测试姓名">
+                <span id="errorName" style="color: orangered"></span>
+            </div>
+            <div class="form-group">
+                <label for="classes">班级</label>
+                <input type="text" class="form-control" id="classes" placeholder="please input classes" value="测试班级">
+                <span id="errorClasses" style="color: orangered"></span>
+            </div>
+            <div class="form-group">
+                <label for="college">所属学院</label>
+                <input type="text" class="form-control" id="college" placeholder="please input college" value="测试所属学院">
+                <span id="errorCollege" style="color: orangered"></span>
+            </div>
+            <div class="form-group">
+                <label for="alias">别名</label>
+                <input type="text" class="form-control" id="alias" placeholder="please input alias" value="测试别名">
+                <span id="errorAlias" style="color: orangered"></span>
+            </div>
+            <div class="form-group">
+                <label >性别</label>
+            </div>
+            <div class="checkbox">
+                <label id="sex">
+                    <input type="radio" name="sex" value=1>男  &nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="radio" name="sex" value=0 checked="checked">女
+                </label>
+            </div>
+            <span id="errorMyFormMessage" style="color: orangered"></span>
+            <button type="button" id="myFormSubmit" class="btn btn-success">提交</button>
+            <button type="button" id="myFormClose" class="btn btn-danger">关闭</button>
+            <!--y隐藏域，用于判断执行的是【1：增、2：改、3：删】-->
+            <input type="hidden" id="submitType" th:value=0>
+        </form>
+    </div>
+
+</body>
+<script type="text/javascript">
+    //---------------------练习table和form-------------------------------------------------------------------------------
+    //查询
+    $("#getTeacherList").click(function () {
+        var params = {};
+        $.ajax({
+            type:"GET",
+            url:"/getTeacherList",
+            async: true,
+            dataType: "json",
+            data: params,
+            contentType: "application/json; charset=UTF-8",
+            success : function (response) {
+                if (response.code === 200) {
+                    //清空table内容
+                    $("#myTbody1").html("");
+                    var tr;
+                    $.each(response.info, function (index, value) {
+                        tr = tr + [
+                            "<tr>",
+                            "<th><input type='checkbox' value=''></th>",
+                            "<th scope='row'>"+ value.id +"</th>",
+                            "<td>"+ value.name +"</td>",
+                            "<td>"+ value.classes +"</td>",
+                            "<td>"+ value.college +"</td>",
+                            "<td>"+ value.alias +"</td>",
+                        ];
+                        if (value.sex === 0) {
+                            tr = tr + "<td> 女 </td>";
+                        } else {
+                            tr = tr + "<td> 男</td>";
+                        }
+                        $("#myTbody1").append("</tr><tr>");
+                    });
+                    $("#myTbody1").append(tr);
+                }
+            }
+        });
+    });
+
+    //校验form
+    var vertifyForm = function () {
+        var flag = true;
+        if ($("#name").val() == "") {
+            $("#errorName").html("name 不能为空");
+            flag = false;
+        }
+        if ($("#classes").val() == "") {
+            $("#errorClasses").html("classes 不能为空");
+            flag = false;
+        }
+        if ($("#college").val() == "") {
+            $("#errorCollege").html("college 不能为空");
+            flag = false;
+        }
+        if ($("#alias").val() == "") {
+            $("#errorAlias").html("alias 不能为空");
+            flag = false;
+        }
+        return flag;
+    }
+
+    //关闭form
+    $("#myFormClose").click(function () {
+        $("#myForm").hide();
+    });
+
+    //新增
+    $("#addTeacher").click(function () {
+        $("#name").val("测试姓名");
+        $("#classes").val("测试班级");
+        $("#college").val("测试所属学院");
+        $("#alias").val("测试别名");
+        $("#myForm").show();
+        $("#submitType").val(1);
+    });
+
+    //修改
+    $("#updateTeacher").click(function () {
+        if ($("#myTbody1 :input:checked").length != 1) {
+            alert("请选则其中一条数据");
+            return;
+        }
+        $("#name").val($("#myTbody1 :input:checked").parent().parent().children().eq(2).html());
+        $("#classes").val($("#myTbody1 :input:checked").parent().parent().children().eq(3).html());
+        $("#college").val($("#myTbody1 :input:checked").parent().parent().children().eq(4).html());
+        $("#alias").val($("#myTbody1 :input:checked").parent().parent().children().eq(5).html());
+        if ($("#myTbody1 :input:checked").parent().parent().children().eq(6).html() == "男") {
+            $("#sex").children().eq(0).prop("checked", true);
+        } else {
+            $("#sex").children().eq(1).prop("checked", true);
+        }
+        $("#myForm").show();
+        $("#submitType").val(2);
+    });
+
+    //删除
+    $("#deleteTeacher").click(function () {
+        $("#submitType").val(3);
+        //$("#myTbody1 :input:checked").length 用于获取checkbox的选中条数
+        if ($("#myTbody1 :input:checked").length == 1) {
+            $("#errorMyFormMessage").html("")
+
+            var params = {
+            };
+            $.ajax({
+                type:"DELETE",
+                url:"/deleteTeacher?id=" + $("#myTbody1 :input:checked").parent().parent().children().eq(1).html(),
+                async: true,
+                dataType: "json",
+                //注意：ajax提交post请求时，必须使用JSON.stringify(data) 序列化请求参数，否则报400
+                data: params,
+                contentType: "application/json; charset=UTF-8",
+                success : function (response) {
+                    if (response.code === 200) {
+                        $("#myTbody1 :input:checked").closest('tr').remove();
+                        $("#myForm").hide();
+                    }
+                }
+            });
+        } else {
+            alert("请选则其中一条数据");
+            return;
+        }
+    });
+
+    //新增/修改/删除-提交
+    $("#myFormSubmit").click(function () {
+        flag = vertifyForm();
+        //校验，成功则提交请求，失败则不提交并显示错误提示信息
+        if (!flag) return;
+        //判断【增加/修改】操作
+        //新增
+        if ($("#submitType").val() == 1) {
+            var params = {
+                "name":$("#name").val(),
+                "classes":$("#classes").val(),
+                "college":$("#college").val(),
+                "alias":$("#alias").val(),
+                "sex":$("#sex :radio").val()
+            };
+
+            $.ajax({
+                type:"POST",
+                url:"/addTeacher",
+                async: true,
+                dataType: "json",
+                //注意：ajax提交post请求时，必须使用JSON.stringify(data) 序列化请求参数，否则报400
+                data: JSON.stringify(params),
+                contentType: "application/json; charset=UTF-8",
+                success : function (response) {
+                    if (response.code === 200) {
+                        var tr = [
+                            "<tr>",
+                            "<th><input type='checkbox' value=''></th>",
+                            "<th scope='row'>" + response.info.id + "</th>",
+                            "<td>"+ response.info.name +"</td>",
+                            "<td>"+ response.info.classes +"</td>",
+                            "<td>"+ response.info.college +"</td>",
+                            "<td>"+ response.info.alias +"</td>",
+                        ];
+                        if (response.info.sex === 0) {
+                            tr = tr + "<td> 女 </td>";
+                        } else {
+                            tr = tr + "<td> 男</td>";
+                        }
+                        $("#myTbody1").append("</tr><tr>").append(tr);
+                        $("#myForm").hide();
+                    }
+                }
+            });
+        }
+        //修改
+        else if ($("#submitType").val() == 2) {
+            //$("#myTbody1 :input:checked").length 用于获取checkbox的选中条数
+            if ($("#myTbody1 :input:checked").length == 1) {
+                $("#errorMyFormMessage").html("")
+
+                var params = {
+                    "id": $("#myTbody1 :input:checked").parent().parent().children().eq(1).html(),
+                    "name":$("#name").val(),
+                    "classes":$("#classes").val(),
+                    "college":$("#college").val(),
+                    "alias":$("#alias").val(),
+                    "sex":$("#sex :radio:checked").val()
+                };
+                $.ajax({
+                    type:"PUT",
+                    url:"/updateTeacher",
+                    async: true,
+                    dataType: "json",
+                    //注意：ajax提交post请求时，必须使用JSON.stringify(data) 序列化请求参数，否则报400
+                    data: JSON.stringify(params),
+                    contentType: "application/json; charset=UTF-8",
+                    success : function (response) {
+                        if (response.code === 200) {
+                            console.log("******")
+                            console.log(response.info)
+                            $("#myTbody1 :input:checked").parent().parent().children().eq(2).html(response.info.name)
+                            $("#myTbody1 :input:checked").parent().parent().children().eq(3).html(response.info.classes)
+                            $("#myTbody1 :input:checked").parent().parent().children().eq(4).html(response.info.college)
+                            $("#myTbody1 :input:checked").parent().parent().children().eq(5).html(response.info.alias)
+                            if (response.info.sex == 0) {
+                                $("#myTbody1 :input:checked").parent().parent().children().eq(6).html("女")
+                            } else {
+                                $("#myTbody1 :input:checked").parent().parent().children().eq(6).html("男")
+                            }
+                            $("#myForm").hide();
+                        }
+                    }
+                });
+            } else {
+                $("#errorMyFormMessage").html("只能选中一条记录提交！")
+                return;
+            }
+        }
+    });
+
+    //清空form
+    var emptyForm = function () {
+        $("#name").val("");
+        $("#classes").val("");
+        $("#college").val("");
+        $("#alias").val("");
+        $("#sex :radio").removeAttr("checked");
+    }
+
+    //全选或者全不选
+    $("#mycheckbox").click(function () {
+        //判断全选框是勾选还是非勾选
+        if ($(this).prop('checked')) {
+            $("#myTable input[type=checkbox]").prop("checked", true);
+        } else {
+            $("#myTable input[type=checkbox]").prop("checked", false);
+        }
+    });
+</script>
+</html> 

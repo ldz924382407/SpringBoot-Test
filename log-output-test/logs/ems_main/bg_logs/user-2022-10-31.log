@@ -1,0 +1,4 @@
+2022.10.31 14:14:11.631 [http-nio-8014-exec-1]DEBUG com.log.controller.LogOutputController  consoleLevel 30 - ===这里是Controller层=======普通打印，这是debug级别  
+2022.10.31 14:14:11.632 [http-nio-8014-exec-1]INFO  com.log.controller.LogOutputController  consoleLevel 31 - ===这里是Controller层=======普通打印，这是info级别  
+2022.10.31 14:14:11.632 [http-nio-8014-exec-1]WARN  com.log.controller.LogOutputController  consoleLevel 32 - ===这里是Controller层=======普通打印，这是warn级别  
+2022.10.31 14:14:11.632 [http-nio-8014-exec-1]ERROR com.log.controller.LogOutputController  consoleLevel 33 - ===这里是Controller层=======普通打印，这是error级别  
